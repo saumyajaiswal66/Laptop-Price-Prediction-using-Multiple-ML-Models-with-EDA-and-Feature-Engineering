@@ -1,129 +1,165 @@
-# Laptop-Price-Prediction-using-Multiple-ML-Models-with-EDA-and-Feature-Engineering
-Built a laptop price prediction system using multiple machine learning models with extensive data preprocessing, feature engineering, and EDA to improve prediction accuracy.
+# 💻 Laptop Price Predictor
 
-# 💻 Laptop Price Prediction using Machine Learning
-
-## 📌 Project Overview
-
-This project aims to predict the price of laptops based on various features such as brand, specifications, and hardware configurations. The goal is to understand the key factors influencing laptop prices and build machine learning models to make accurate predictions.
+A machine learning project that predicts laptop prices based on hardware specifications
+like CPU, RAM, GPU, Storage, and Display features.
+Built using Python and Scikit-learn with an R² score of **88.5%** on the test set.
 
 ---
 
-## 🎯 Objectives
+## 📌 Table of Contents
+- [Project Overview](#project-overview)
+- [Dataset](#dataset)
+- [Project Workflow](#project-workflow)
+- [Key Findings](#key-findings)
+- [Model Results](#model-results)
+- [Technologies Used](#technologies-used)
+- [How to Run](#how-to-run)
+- [Future Scope](#future-scope)
 
-* Perform **data cleaning and preprocessing**
-* Conduct **Exploratory Data Analysis (EDA)** to extract insights
-* Apply **feature engineering techniques**
-* Build and compare multiple **machine learning models**
-* Evaluate model performance and select the best one
+---
+
+## 📖 Project Overview
+
+Buying a laptop can be confusing — why does one laptop cost ₹40,000 and another
+₹1,40,000 with seemingly similar specs? This project answers that question using
+data and machine learning.
+
+We trained a **Random Forest Regressor** on 1300+ real laptop listings to predict
+price from specs — and identified which features drive price the most.
 
 ---
 
 ## 📂 Dataset
 
-* The dataset contains information about laptops including:
-
-  * Brand
-  * RAM
-  * Processor
-  * Storage
-  * GPU
-  * Operating System
-  * Weight
-  * Price
+- **Source** : [Kaggle - Laptop Price Dataset](https://www.kaggle.com/datasets/ionaskel/laptop-prices)
+- **Size** : 1303 rows × 12 columns (after removing 29 duplicates → 1274 rows)
+- **Features** : Company, TypeName, Inches, ScreenResolution, CPU, RAM,
+  Memory, GPU, OpSys, Weight, Price
 
 ---
 
-## 🔧 Project Workflow
+## 🔄 Project Workflow
 
-### 1. Data Preprocessing
+### 1. Data Cleaning
+- Removed 29 duplicate rows
+- Extracted numeric values from `RAM` (e.g. `8GB → 8`) and `Weight` (e.g. `1.5kg → 1.5`)
+- Verified no null values exist in the dataset
 
-* Handled missing values
-* Cleaned inconsistent data formats
-* Converted categorical features into usable format
+### 2. Feature Engineering
+This is the most important part of the project. Raw columns had messy text data
+that needed to be converted into meaningful numeric features.
 
-### 2. Text Processing
+| Original Column | What We Did | New Feature(s) |
+|---|---|---|
+| ScreenResolution | Extracted touch/IPS flags, computed pixel density | `TouchScreen`, `IPS`, `PPI` |
+| CPU | Categorized into i3 / i5 / i7 / Other Intel / AMD | `CPU_Name` |
+| Memory | Parsed HDD and SSD storage values separately | `HDD`, `SSD` |
+| GPU | Extracted brand (Nvidia / Intel / AMD) | `Gpu_brand` |
+| OpSys | Grouped into Windows / Mac / Other | `OpSys` |
 
-* Extracted useful information from text columns (e.g., CPU, GPU, OS,ScreenResolution,RAM,Memory)
-* Standardized feature values
+**Notable engineering decision** : Instead of keeping X-Resolution, Y-Resolution,
+and Screen Size as 3 separate columns, we combined them into a single
+`PPI (Pixels Per Inch)` feature — which had better correlation with Price
+and reduced multicollinearity.
 
-### 3. Exploratory Data Analysis (EDA)
+### 3. Exploratory Data Analysis
+- Distribution analysis of Price (identified right skew → applied log transformation)
+- Brand-wise, CPU-wise, GPU-wise price comparisons
+- Correlation heatmap of all numeric features
+- Touchscreen vs Non-touchscreen price comparison
+- IPS vs Non-IPS price comparison
 
-* Analyzed distribution of price
-* Identified relationships between features and price
-* Used visualizations to uncover patterns and trends
-
-### 4. Feature Engineering
-
-* Created new meaningful features
-* Reduced irrelevant or redundant data
-
-### 5. Model Building
-
-Implemented and compared multiple models:
-
-* Linear Regression
-* Ridge Regression
-* Lasso Regression
-* Decision Tree Regressor
-* Random Forest Regressor
-
----
-
-## 📊 Model Performance
-
-| Model             | Performance (R² Score) |
-| ----------------- | ---------------------- |
-| Linear Regression | 0.8073277448418653     |
-| Ridge Regression  | 0.812733103131181      |
-| Lasso Regression  | 0.8071857196899418     |
-| Decision Tree     | 0.8446033998579088     |
-| Random Forest     | 0.8851499847098487     |
-
-> 🔎 *Random Forest performed the best among all models.*
+### 4. Model Building
+- Applied `np.log()` on Price to handle skewed distribution
+- Used **Scikit-learn Pipelines** with `ColumnTransformer` for clean preprocessing
+- Trained and compared 5 regression models
 
 ---
 
-## 📈 Key Insights
+## 💡 Key Findings
 
-* RAM and Processor significantly impact laptop price
-* High-end GPUs lead to higher price ranges
-* Brand value also plays an important role
-* Price distribution is right-skewed
-
----
-
-## ⚠️ Limitations
-
-* Hyperparameter tuning was not performed
-* No deployment or frontend application included
-* Model performance can be further improved
+1. **SSD is the strongest price predictor** — SSD laptops cost significantly
+   more than HDD laptops with similar specs
+2. **RAM directly drives price** — 16GB+ RAM laptops are nearly 2x more
+   expensive than 4/8GB variants
+3. **CPU type matters** — Intel i7 > i5 > i3 > AMD in terms of average price
+4. **Touchscreen adds a price premium** of roughly 20-30% on average
+5. **IPS panels increase price** due to better display quality
+6. **Mac OS laptops are the most expensive** on average across all brands
+7. **Nvidia GPU laptops cost more** — driven by gaming and creative workloads
+8. **Higher PPI = Higher Price** — premium displays command a premium price
 
 ---
 
-## 🚀 Future Improvements
+## 📊 Model Results
 
-* Apply **Hyperparameter Tuning (GridSearchCV / RandomSearchCV)**
-* Build a simple **Streamlit web application**
-* Deploy the model for real-time predictions
-* Use more advanced models for better accuracy
+| Model | R² Score | MAE |
+|---|---|---|
+| 🏆 Random Forest | **0.8851** | **0.1587** |
+| Decision Tree | 0.8376 | 0.1843 |
+| Ridge Regression | 0.8127 | 0.2093 |
+| Linear Regression | 0.8073 | 0.2102 |
+| Lasso Regression | 0.8071 | 0.2111 |
 
----
+**Random Forest Regressor** performed best with **R² = 0.885**, meaning the model
+explains 88.5% of the variation in laptop prices.
 
-## 🛠️ Tech Stack
-
-* Python
-* Pandas, NumPy
-* Matplotlib, Seaborn
-* Scikit-learn
-
----
-
-## 🙋‍♂️ About Me
-
-I am a data science enthusiast passionate about solving real-world problems using data. This project reflects my understanding of data preprocessing, visualization, and machine learning fundamentals.
+> Note : Price was log-transformed before training. MAE values are in log scale.
 
 ---
 
-## ⭐ If you found this project useful, consider giving it a star!
+## 🛠️ Technologies Used
 
+| Tool | Purpose |
+|---|---|
+| Python 3 | Core programming language |
+| Pandas | Data manipulation and cleaning |
+| NumPy | Numerical operations |
+| Matplotlib & Seaborn | Data visualization |
+| Scikit-learn | ML models, pipelines, preprocessing |
+| Pickle | Model serialization |
+| Jupyter Notebook | Development environment |
+
+---
+
+## ▶️ How to Run
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/saumyajaiswal66/laptop-price-predictor.git
+cd laptop-price-predictor
+```
+
+### 2. Install dependencies
+```bash
+pip install pandas numpy matplotlib seaborn scikit-learn
+```
+
+### 3. Run the notebook
+```bash
+jupyter notebook laptop_price_prediction.ipynb
+```
+
+> Make sure `laptop_data.csv` is in the same folder as the notebook before running.
+
+---
+
+## 🚀 Future Scope
+
+- [ ] Deploy as a live web app using **Streamlit**
+- [ ] Add 2023–2025 laptop data for updated predictions
+- [ ] Try **XGBoost / LightGBM** for better accuracy
+- [ ] Add feature importance visualization
+- [ ] Build a price comparison tool (user inputs specs → see where it falls
+      in the market)
+
+---
+
+## 👤 Author
+
+**Saumya Jaiswal**
+- GitHub : [@saumyajaiswal66](https://github.com/saumyajaiswal66)
+
+---
+
+⭐ If you found this project helpful, please consider giving it a star on GitHub!
